@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 
 # 1. Charger le modèle et le scaler
 model = joblib.load('lasso_model.joblib')
-scaler = joblib.load('scaler.pkl')
+scaler = joblib.load('scaler.joblib')
 label_encoders = joblib.load('label_encoders.joblib')
 
 # Récupérer les classes connues depuis les encodeurs
