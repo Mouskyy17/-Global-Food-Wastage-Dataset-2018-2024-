@@ -1,4 +1,3 @@
-# app.py
 import streamlit as st
 import joblib
 import pandas as pd
@@ -14,7 +13,7 @@ label_encoders = joblib.load('label_encoders.joblib')
 available_countries = label_encoders["Country"].classes_.tolist()
 available_categories = label_encoders["Food Category"].classes_.tolist()
 
-# 2. Créer l'interface utilisateur
+# 2. Interface utilisateur
 st.title('📊 Prédiction des Pertes Économiques liées au Gaspillage Alimentaire')
 
 st.markdown("""
@@ -43,30 +42,30 @@ def user_input_features():
         'Household Waste (%)': household_waste
     }
     
-    features = pd.DataFrame(data, index=[0])
-    return features
+    return pd.DataFrame(data, index=[0])
 
 input_df = user_input_features()
 
 # 4. Prétraitement des données
 def preprocess_input(input_df):
+    # Liste des caractéristiques utilisées lors de l'entraînement
+    expected_features = ["Country", "Year", "Food Category", "Total Waste (Tons)", 
+                         "Avg Waste per Capita (Kg)", "Population (Million)", "Household Waste (%)"]
+    
     # Encodage des variables catégorielles
     for col in ["Country", "Food Category"]:
-        if col in label_encoders:  # Vérification que l'encodeur existe
-            input_df[col] = input_df[col].map(lambda x: label_encoders[col].transform([x])[0] if x in label_encoders[col].classes_ else -1)
+        if col in label_encoders:
+            input_df[col] = input_df[col].apply(
+                lambda x: label_encoders[col].transform([x])[0] if x in label_encoders[col].classes_ else -1
+            )
         else:
             raise ValueError(f"L'encodeur pour '{col}' est introuvable.")
 
-    # Sélection des colonnes dans le bon ordre (exactement comme lors de l'entraînement)
-    expected_features = ["Country", "Year", "Food Category", "Total Waste (Tons)", 
-                         "Avg Waste per Capita (Kg)", "Population (Million)", "Household Waste (%)"]
-
-    # Vérification que toutes les colonnes attendues sont bien présentes
+    # Vérification et réorganisation des colonnes
     missing_features = set(expected_features) - set(input_df.columns)
     if missing_features:
-        raise ValueError(f"Colonnes manquantes dans les données d'entrée : {missing_features}")
-
-    # Réorganisation des colonnes
+        raise ValueError(f"Colonnes manquantes : {missing_features}")
+    
     input_df = input_df[expected_features]
 
     # Normalisation des variables numériques
@@ -74,7 +73,6 @@ def preprocess_input(input_df):
     input_df[numerical_features] = scaler.transform(input_df[numerical_features])
 
     return input_df
-
 
 processed_df = preprocess_input(input_df.copy())
 
@@ -90,7 +88,7 @@ if st.button('🔮 Prédire les Pertes Économiques'):
     # Explication supplémentaire
     st.markdown("""
     **Interprétation :**
-    - Cette prédiction est basée sur un modèle Random Forest entraîné sur des données historiques
+    - Cette prédiction est basée sur un modèle Lasso entraîné sur des données historiques
     - La précision moyenne du modèle est de ± $2.5 millions
     - Les facteurs les plus influents sont généralement les déchets totaux et la population
     """)
