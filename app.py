@@ -52,14 +52,9 @@ def preprocess_input(input_df):
     expected_features = ["Country", "Year", "Food Category", "Total Waste (Tons)", 
                          "Avg Waste per Capita (Kg)", "Population (Million)", "Household Waste (%)"]
 
-    # Encodage des variables catégorielles
-    for col in ["Country", "Food Category"]:
-        if col in label_encoders:
-            input_df[col] = input_df[col].map(
-                lambda x: label_encoders[col].transform([x])[0] if x in label_encoders[col].classes_ else -1
-            )
-        else:
-            raise ValueError(f"L'encodeur pour '{col}' est introuvable.")
+    # Encodage direct des variables catégorielles à l'aide des encodeurs
+    input_df["Country"] = label_encoders["Country"].transform(input_df["Country"])
+    input_df["Food Category"] = label_encoders["Food Category"].transform(input_df["Food Category"])
 
     # Vérifier si toutes les colonnes attendues sont bien présentes
     missing_features = set(expected_features) - set(input_df.columns)
@@ -109,3 +104,4 @@ st.markdown("""
 
 *Les données utilisées proviennent du Global Food Wastage Dataset 2018-2024*
 """)
+
