@@ -8,6 +8,11 @@ from sklearn.preprocessing import StandardScaler
 # 1. Charger le modèle et le scaler
 model = joblib.load('lasso_model.joblib')
 scaler = joblib.load('scaler.pkl')
+label_encoders = joblib.load('label_encoders.joblib')
+
+# Récupérer les classes connues depuis les encodeurs
+available_countries = label_encoders["Country"].classes_.tolist()
+available_categories = label_encoders["Food Category"].classes_.tolist()
 
 # 2. Créer l'interface utilisateur
 st.title('📊 Prédiction des Pertes Économiques liées au Gaspillage Alimentaire')
@@ -20,10 +25,9 @@ Cette application prédit les pertes économiques (en millions $) basées sur le
 st.sidebar.header('📥 Paramètres d\'Entrée')
 
 def user_input_features():
-    country = st.sidebar.selectbox('Pays', ['France', 'USA', 'China', 'India', 'Brazil', 'Japan'])
+    country = st.sidebar.selectbox('Pays', available_countries)
     year = st.sidebar.slider('Année', 2018, 2025, 2022)
-    food_category = st.sidebar.selectbox('Catégorie Alimentaire', 
-                                       ['Fruits & Vegetables', 'Prepared Food', 'Dairy Products', 'Meat & Seafood'])
+    food_category = st.sidebar.selectbox('Catégorie', available_categories)
     total_waste = st.sidebar.number_input('Déchets Totaux (Tonnes)', min_value=0.0, value=10000.0)
     avg_waste = st.sidebar.number_input('Déchet Moyen par Habitant (Kg)', min_value=0.0, value=50.0)
     population = st.sidebar.number_input('Population (Millions)', min_value=0.0, value=50.0)
@@ -46,26 +50,17 @@ input_df = user_input_features()
 
 # 4. Prétraitement des données
 def preprocess_input(input_df):
-    # Encodage one-hot
-    countries = ['France', 'USA', 'China', 'India', 'Brazil', 'Japan']
-    categories = ['Fruits & Vegetables', 'Prepared Food', 'Dairy Products', 'Meat & Seafood']
+    # Encodage LabelEncoder
+    for col in ["Country", "Food Category"]:
+        le = label_encoders[col]
+        input_df[col] = le.transform(input_df[col])  # Transforme les nouvelles entrées
     
-    for country in countries:
-        input_df[f'Country_{country}'] = 1 if input_df['Country'].values[0] == country else 0
-        
-    for category in categories:
-        input_df[f'Food Category_{category}'] = 1 if input_df['Food Category'].values[0] == category else 0
-    
-    # Supprimer les colonnes originales
-    input_df.drop(['Country', 'Food Category'], axis=1, inplace=True)
-    
-    # Scaling
-    numerical_features = ['Year', 'Total Waste (Tons)', 'Avg Waste per Capita (Kg)', 
-                         'Population (Million)', 'Household Waste (%)']
-    
+    # Normalisation
+    numerical_features = ['Year', 'Total Waste (Tons)', 'Population (Million)']
     input_df[numerical_features] = scaler.transform(input_df[numerical_features])
     
     return input_df
+
 
 processed_df = preprocess_input(input_df.copy())
 
@@ -76,7 +71,7 @@ st.write(input_df)
 # 6. Prédiction
 if st.button('🔮 Prédire les Pertes Économiques'):
     prediction = model.predict(processed_df)
-    st.success(f'**Prédiction des pertes économiques :** ${prediction[0]:.2f} millions')
+    st.success(f'Perte prédite : ${prediction[0]:.2f} millions')
     
     # Explication supplémentaire
     st.markdown("""
