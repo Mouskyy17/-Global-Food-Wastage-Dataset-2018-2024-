@@ -53,12 +53,19 @@ def preprocess_input(input_df):
     # Encodage LabelEncoder
     for col in ["Country", "Food Category"]:
         le = label_encoders[col]
-        input_df[col] = le.transform(input_df[col])  # Transforme les nouvelles entrées
+        input_df[col] = input_df[col].map(lambda x: le.transform([x])[0] if x in le.classes_ else -1)  
     
+    # Sélection des colonnes utilisées lors de l'entraînement du modèle
+    expected_features = ["Country", "Year", "Food Category", "Total Waste (Tons)", 
+                         "Avg Waste per Capita (Kg)", "Population (Million)", "Household Waste (%)"]
+
+    # Remettre les colonnes dans le bon ordre
+    input_df = input_df.reindex(columns=expected_features)
+
     # Normalisation
-    numerical_features = ['Year', 'Total Waste (Tons)', 'Population (Million)']
-    input_df[numerical_features] = scaler.transform(input_df[numerical_features])
-    
+    input_df[["Year", "Total Waste (Tons)", "Avg Waste per Capita (Kg)", "Population (Million)", "Household Waste (%)"]] = scaler.transform(
+        input_df[["Year", "Total Waste (Tons)", "Avg Waste per Capita (Kg)", "Population (Million)", "Household Waste (%)"]])
+
     return input_df
 
 
