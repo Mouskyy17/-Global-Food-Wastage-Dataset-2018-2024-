@@ -50,21 +50,28 @@ input_df = user_input_features()
 
 # 4. Prétraitement des données
 def preprocess_input(input_df):
-    # Encodage LabelEncoder
+    # Encodage des variables catégorielles
     for col in ["Country", "Food Category"]:
-        le = label_encoders[col]
-        input_df[col] = input_df[col].map(lambda x: le.transform([x])[0] if x in le.classes_ else -1)  
-    
-    # Sélection des colonnes utilisées lors de l'entraînement du modèle
+        if col in label_encoders:  # Vérification que l'encodeur existe
+            input_df[col] = input_df[col].map(lambda x: label_encoders[col].transform([x])[0] if x in label_encoders[col].classes_ else -1)
+        else:
+            raise ValueError(f"L'encodeur pour '{col}' est introuvable.")
+
+    # Sélection des colonnes dans le bon ordre (exactement comme lors de l'entraînement)
     expected_features = ["Country", "Year", "Food Category", "Total Waste (Tons)", 
                          "Avg Waste per Capita (Kg)", "Population (Million)", "Household Waste (%)"]
 
-    # Remettre les colonnes dans le bon ordre
-    input_df = input_df.reindex(columns=expected_features)
+    # Vérification que toutes les colonnes attendues sont bien présentes
+    missing_features = set(expected_features) - set(input_df.columns)
+    if missing_features:
+        raise ValueError(f"Colonnes manquantes dans les données d'entrée : {missing_features}")
 
-    # Normalisation
-    input_df[["Year", "Total Waste (Tons)", "Avg Waste per Capita (Kg)", "Population (Million)", "Household Waste (%)"]] = scaler.transform(
-        input_df[["Year", "Total Waste (Tons)", "Avg Waste per Capita (Kg)", "Population (Million)", "Household Waste (%)"]])
+    # Réorganisation des colonnes
+    input_df = input_df[expected_features]
+
+    # Normalisation des variables numériques
+    numerical_features = ["Year", "Total Waste (Tons)", "Avg Waste per Capita (Kg)", "Population (Million)", "Household Waste (%)"]
+    input_df[numerical_features] = scaler.transform(input_df[numerical_features])
 
     return input_df
 
