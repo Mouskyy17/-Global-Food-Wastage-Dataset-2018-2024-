@@ -33,16 +33,16 @@ def user_input_features():
     household_waste = st.sidebar.slider('Déchet Ménager (%)', 0.0, 100.0, 30.0)
     
     data = {
-        'Country': country,
-        'Year': year,
-        'Food Category': food_category,
-        'Total Waste (Tons)': total_waste,
-        'Avg Waste per Capita (Kg)': avg_waste,
-        'Population (Million)': population,
-        'Household Waste (%)': household_waste
+        'Country': [country],
+        'Year': [year],
+        'Food Category': [food_category],
+        'Total Waste (Tons)': [total_waste],
+        'Avg Waste per Capita (Kg)': [avg_waste],
+        'Population (Million)': [population],
+        'Household Waste (%)': [household_waste]
     }
     
-    return pd.DataFrame(data, index=[0])
+    return pd.DataFrame(data)
 
 input_df = user_input_features()
 
@@ -51,37 +51,43 @@ def preprocess_input(input_df):
     # Liste des caractéristiques utilisées lors de l'entraînement
     expected_features = ["Country", "Year", "Food Category", "Total Waste (Tons)", 
                          "Avg Waste per Capita (Kg)", "Population (Million)", "Household Waste (%)"]
-    
+
     # Encodage des variables catégorielles
     for col in ["Country", "Food Category"]:
         if col in label_encoders:
-            input_df[col] = input_df[col].apply(
+            input_df[col] = input_df[col].map(
                 lambda x: label_encoders[col].transform([x])[0] if x in label_encoders[col].classes_ else -1
             )
         else:
             raise ValueError(f"L'encodeur pour '{col}' est introuvable.")
 
-    # Vérification et réorganisation des colonnes
+    # Vérifier si toutes les colonnes attendues sont bien présentes
     missing_features = set(expected_features) - set(input_df.columns)
     if missing_features:
         raise ValueError(f"Colonnes manquantes : {missing_features}")
     
+    # Réorganiser les colonnes pour correspondre à l'ordre d'entraînement
     input_df = input_df[expected_features]
 
-    # Normalisation des variables numériques
+    # Appliquer la normalisation uniquement sur les variables numériques
     numerical_features = ["Year", "Total Waste (Tons)", "Avg Waste per Capita (Kg)", "Population (Million)", "Household Waste (%)"]
     input_df[numerical_features] = scaler.transform(input_df[numerical_features])
 
     return input_df
 
-processed_df = preprocess_input(input_df.copy())
+# Vérification des colonnes avant transformation
+try:
+    processed_df = preprocess_input(input_df.copy())
+except ValueError as e:
+    st.error(f"Erreur de prétraitement : {e}")
+    processed_df = None
 
 # 5. Affichage des données d'entrée
 st.subheader('📋 Paramètres Saisis')
 st.write(input_df)
 
 # 6. Prédiction
-if st.button('🔮 Prédire les Pertes Économiques'):
+if processed_df is not None and st.button('🔮 Prédire les Pertes Économiques'):
     prediction = model.predict(processed_df)
     st.success(f'Perte prédite : ${prediction[0]:.2f} millions')
     
