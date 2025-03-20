@@ -8,7 +8,7 @@ scaler = joblib.load('scaler.joblib')
 lasso_model = joblib.load('lasso_model.joblib')
 label_encoders = {
     'Country': joblib.load('label_encoder_Country.joblib'),
-    'Food Category': joblib.load('label_encoder_Food Category.joblib')
+    'Food Category': joblib.load('label_encoder_Food_Category.joblib')
 }
 
 # Interface utilisateur avec sidebar
@@ -42,3 +42,4 @@ if input_data.shape[1] == scaler.n_features_in_:
         st.success(f"Pertes économiques estimées : {prediction:,.2f} millions de dollars")
 else:
     st.error("Le nombre de caractéristiques d'entrée ne correspond pas à celui attendu par le modèle.")
+  
