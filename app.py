@@ -56,8 +56,8 @@ def preprocess_input(input_df):
                          "Avg Waste per Capita (Kg)", "Population (Million)", "Household Waste (%)"]
 
     # Encodage direct des variables catégorielles à l'aide des encodeurs
-    input_df["Country"] = label_encoders_country["Country"].transform(input_df["Country"])
-    input_df["Food Category"] = label_encoders_food["Food Category"].transform(input_df["Food Category"])
+    input_df["Country"] = label_encoders_country.transform(input_df["Country"])
+    input_df["Food Category"] = label_encoders_food.transform(input_df["Food Category"])
 
     # Vérifier si toutes les colonnes attendues sont bien présentes
     missing_features = set(expected_features) - set(input_df.columns)
@@ -72,6 +72,7 @@ def preprocess_input(input_df):
     input_df[numerical_features] = scaler.transform(input_df[numerical_features])
 
     return input_df
+
 
 # Vérification des colonnes avant transformation
 try:
