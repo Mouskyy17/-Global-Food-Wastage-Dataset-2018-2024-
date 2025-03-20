@@ -12,8 +12,9 @@ label_encoders_food = joblib.load('label_encoder_Food_Category.joblib')
 
 
 # Récupérer les classes connues depuis les encodeurs
-available_countries = label_encoders_country["Country"].classes_.tolist()
-available_categories = label_encoders_food["Food Category"].classes_.tolist()
+available_countries = label_encoders_country.classes_.tolist()
+available_categories = label_encoders_food.classes_.tolist()
+
 
 # 2. Interface utilisateur
 st.title('📊 Prédiction des Pertes Économiques liées au Gaspillage Alimentaire')
