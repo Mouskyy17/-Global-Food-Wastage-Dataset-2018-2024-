@@ -41,9 +41,6 @@ encoded_food_category = label_encoders['Food Category'].transform([food_category
 # Préparation des données pour la prédiction
 input_data = np.array([[encoded_country, year, encoded_food_category, total_waste, avg_waste_per_capita, population, household_waste]])
 
-# Vérification de la forme des données
-st.write(f"ℹ️ Input shape: {input_data.shape}, Expected: {scaler.n_features_in_}")
-
 # Assurer la cohérence du nombre de features
 if input_data.shape[1] == scaler.n_features_in_:
     input_data_scaled = scaler.transform(input_data)
