@@ -7,8 +7,8 @@ from sklearn.preprocessing import StandardScaler
 # 1. Charger le modèle et le scaler
 model = joblib.load('lasso_model.joblib')
 scaler = joblib.load('scaler.joblib')
-label_encoders_country = joblib.load('label_encoders_Country.joblib')
-label_encoders_food = joblib.load('label_encoders_Food_Category.joblib')
+label_encoders_country = joblib.load('label_encoder_Country.joblib')
+label_encoders_food = joblib.load('label_encoder_Food_Category.joblib')
 
 
 # Récupérer les classes connues depuis les encodeurs
