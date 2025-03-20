@@ -8,7 +8,7 @@ scaler = joblib.load('scaler.joblib')
 lasso_model = joblib.load('lasso_model.joblib')
 label_encoders = {
     'Country': joblib.load('label_encoder_Country.joblib'),
-    'Food Category': joblib.load('label_encoder_Food Category.joblib')
+    'Food Category': joblib.load('label_encoder_Food_Category.joblib')
 }
 
 # Interface utilisateur avec sidebar
