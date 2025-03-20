@@ -7,11 +7,13 @@ from sklearn.preprocessing import StandardScaler
 # 1. Charger le modèle et le scaler
 model = joblib.load('lasso_model.joblib')
 scaler = joblib.load('scaler.joblib')
-label_encoders = joblib.load('label_encoders.joblib')
+label_encoders_country = joblib.load('label_encoders_Country.joblib')
+label_encoders_food = joblib.load('label_encoders_Food_Category.joblib')
+
 
 # Récupérer les classes connues depuis les encodeurs
-available_countries = label_encoders["Country"].classes_.tolist()
-available_categories = label_encoders["Food Category"].classes_.tolist()
+available_countries = label_encoders_country["Country"].classes_.tolist()
+available_categories = label_encoders_food["Food Category"].classes_.tolist()
 
 # 2. Interface utilisateur
 st.title('📊 Prédiction des Pertes Économiques liées au Gaspillage Alimentaire')
@@ -53,8 +55,8 @@ def preprocess_input(input_df):
                          "Avg Waste per Capita (Kg)", "Population (Million)", "Household Waste (%)"]
 
     # Encodage direct des variables catégorielles à l'aide des encodeurs
-    input_df["Country"] = label_encoders["Country"].transform(input_df["Country"])
-    input_df["Food Category"] = label_encoders["Food Category"].transform(input_df["Food Category"])
+    input_df["Country"] = label_encoders_country["Country"].transform(input_df["Country"])
+    input_df["Food Category"] = label_encoders_food["Food Category"].transform(input_df["Food Category"])
 
     # Vérifier si toutes les colonnes attendues sont bien présentes
     missing_features = set(expected_features) - set(input_df.columns)
