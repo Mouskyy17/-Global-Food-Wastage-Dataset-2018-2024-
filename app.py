@@ -69,9 +69,16 @@ def preprocess_input(input_df):
 
     # Appliquer la normalisation uniquement sur les variables numériques
     numerical_features = ["Year", "Total Waste (Tons)", "Avg Waste per Capita (Kg)", "Population (Million)", "Household Waste (%)"]
-    input_df[numerical_features] = scaler.transform(input_df[numerical_features])
+    
+    # Vérifier si le scaler a été entraîné avec les variables catégorielles
+    scaler_features = scaler.feature_names_in_.tolist()  # Colonnes utilisées lors de fit()
+    features_to_scale = [col for col in numerical_features if col in scaler_features]
+
+    # Appliquer la transformation uniquement aux bonnes colonnes
+    input_df[features_to_scale] = scaler.transform(input_df[features_to_scale])
 
     return input_df
+
 
 
 # Vérification des colonnes avant transformation
