@@ -8,7 +8,7 @@ scaler = joblib.load('scaler.joblib')
 lasso_model = joblib.load('lasso_model.joblib')
 label_encoders = {
     'Country': joblib.load('label_encoder_Country.joblib'),
-    'Food Category': joblib.load('label_encoder_Food_Category.joblib')
+    'Food Category': joblib.load('label_encoder_Food Category.joblib')
 }
 
 # Interface utilisateur avec sidebar
@@ -29,9 +29,16 @@ encoded_food_category = label_encoders['Food Category'].transform([food_category
 
 # Préparation des données pour la prédiction
 input_data = np.array([[encoded_country, encoded_food_category, food_waste, co2_emission, water_use, land_use]])
-input_data_scaled = scaler.transform(input_data)
 
-# Prédiction
-if st.sidebar.button("Prédire"):
-    prediction = lasso_model.predict(input_data_scaled)[0]
-    st.success(f"Pertes économiques estimées : {prediction:,.2f} millions de dollars")
+# Vérification de la forme des données
+st.write(f"Input shape: {input_data.shape}, Expected: {scaler.n_features_in_}")
+
+# Assurer la cohérence du nombre de features
+if input_data.shape[1] == scaler.n_features_in_:
+    input_data_scaled = scaler.transform(input_data)
+    # Prédiction
+    if st.sidebar.button("Prédire"):
+        prediction = lasso_model.predict(input_data_scaled)[0]
+        st.success(f"Pertes économiques estimées : {prediction:,.2f} millions de dollars")
+else:
+    st.error("Le nombre de caractéristiques d'entrée ne correspond pas à celui attendu par le modèle.")
