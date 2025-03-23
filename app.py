@@ -4,7 +4,8 @@ import joblib
 import pandas as pd
 
 # Charger les objets sauvegardés
-scaler = joblib.load('scaler.joblib')
+scaler_prediction = joblib.load('scaler.joblib')
+scaler_classification = joblib.load('scaler_class.joblib')
 lasso_model = joblib.load('lasso_model.joblib')
 logistic_model = joblib.load('logistic_regression_model.joblib')
 label_encoders = {
@@ -44,16 +45,17 @@ encoded_food_category = label_encoders['Food Category'].transform([food_category
 input_data = np.array([[encoded_country, year, encoded_food_category, avg_waste_per_capita, population, household_waste]])
 
 # Assurer la cohérence du nombre de features
-if input_data.shape[1] == scaler.n_features_in_:
-    input_data_scaled = scaler.transform(input_data)
+if input_data.shape[1] == scaler_prediction.n_features_in_ and input_data.shape[1] == scaler_classification.n_features_in_:
+    input_data_scaled_prediction = scaler_prediction.transform(input_data)
+    input_data_scaled_classification = scaler_classification.transform(input_data)
     
     if st.sidebar.button("🔮 Prédire"):
         # Prédiction des pertes économiques
-        prediction_economic_loss = lasso_model.predict(input_data_scaled)[0]
+        prediction_economic_loss = lasso_model.predict(input_data_scaled_prediction)[0]
         st.success(f"💰 Pertes économiques estimées : **{prediction_economic_loss:,.2f} millions de dollars**")
         
         # Classification du gaspillage
-        prediction_waste_category = logistic_model.predict(input_data_scaled)[1]
+        prediction_waste_category = logistic_model.predict(input_data_scaled_classification)[0]
         st.info(f"📊 Niveau de gaspillage prédit : **{prediction_waste_category}**")
 else:
-    st.error("⚠️ Le nombre de caractéristiques d'entrée ne correspond pas à celui attendu par le modèle.")
+    st.error("⚠️ Le nombre de caractéristiques d'entrée ne correspond pas à celui attendu par les modèles.")
