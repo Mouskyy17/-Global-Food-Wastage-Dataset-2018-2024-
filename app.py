@@ -32,7 +32,7 @@ st.sidebar.subheader("♻️ Données de Gaspillage")
 total_waste = st.sidebar.number_input("🗑️ Gaspillage total (tonnes)", min_value=0.0, value=1000.0)
 avg_waste_per_capita = st.sidebar.number_input("👤 Gaspillage moyen par habitant (kg)", min_value=0.0, value=50.0)
 
-t.sidebar.subheader("🏠 Données Démographiques")
+st.sidebar.subheader("🏠 Données Démographiques")
 population = st.sidebar.number_input("👥 Population (millions)", min_value=0.1, value=10.0)
 household_waste = st.sidebar.number_input("🏡 Gaspillage des ménages (%)", min_value=0.0, max_value=100.0, value=30.0)
 
