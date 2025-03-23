@@ -53,7 +53,7 @@ if input_data.shape[1] == scaler.n_features_in_:
         st.success(f"💰 Pertes économiques estimées : **{prediction_economic_loss:,.2f} millions de dollars**")
         
         # Classification du gaspillage
-        prediction_waste_category = logistic_model.predict(input_data_scaled)[0]
+        prediction_waste_category = logistic_model.predict(input_data_scaled)[1]
         st.info(f"📊 Niveau de gaspillage prédit : **{prediction_waste_category}**")
 else:
     st.error("⚠️ Le nombre de caractéristiques d'entrée ne correspond pas à celui attendu par le modèle.")
