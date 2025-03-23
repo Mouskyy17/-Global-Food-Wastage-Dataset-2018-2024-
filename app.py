@@ -41,11 +41,14 @@ household_waste = st.sidebar.number_input("🏡 Gaspillage des ménages (%)", mi
 encoded_country = label_encoders['Country'].transform([country])[0]
 encoded_food_category = label_encoders['Food Category'].transform([food_category])[0]
 
-# Préparation des données pour la prédiction
-input_data = np.array([[encoded_country, year, encoded_food_category, avg_waste_per_capita, population, household_waste]])
+# Préparation des données pour la prédiction et la classification
+input_data = np.array([[encoded_country, year, encoded_food_category, total_waste, avg_waste_per_capita, population, household_waste]])
 
-# Assurer la cohérence du nombre de features
-if input_data.shape[1] == scaler_prediction.n_features_in_ and input_data.shape[1] == scaler_classification.n_features_in_:
+# Vérifier les dimensions attendues
+expected_features_prediction = scaler_prediction.n_features_in_
+expected_features_classification = scaler_classification.n_features_in_
+
+if input_data.shape[1] == expected_features_prediction and input_data.shape[1] == expected_features_classification:
     input_data_scaled_prediction = scaler_prediction.transform(input_data)
     input_data_scaled_classification = scaler_classification.transform(input_data)
     
@@ -58,4 +61,4 @@ if input_data.shape[1] == scaler_prediction.n_features_in_ and input_data.shape[
         prediction_waste_category = logistic_model.predict(input_data_scaled_classification)[0]
         st.info(f"📊 Niveau de gaspillage prédit : **{prediction_waste_category}**")
 else:
-    st.error("⚠️ Le nombre de caractéristiques d'entrée ne correspond pas à celui attendu par les modèles.")
+    st.error(f"⚠️ Nombre de caractéristiques incorrect : Entrée={input_data.shape[1]}, Prediction={expected_features_prediction}, Classification={expected_features_classification}")
